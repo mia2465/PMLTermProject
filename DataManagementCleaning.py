@@ -1,10 +1,35 @@
 
 import os.path
+import shutil
+
+
+EntireCovidSet = "/Users/amelianelson/Desktop/Imaging/manifest-1711845412213/COVID-19-NY-SBU"
+
+#Goes through every patient directory downloaded
+with os.scandir(EntireCovidSet) as Patients:
+    for patient in Patients:
+        if patient.name != ".DS_Store":
+            if patient.name != "LICENSE":
+                firstDate = True
+                with os.scandir(patient.path) as Dates:
+                    for date in Dates:
+                        if date.name != ".DS_Store":
+                            if firstDate:
+                                firstPicture = True
+                                with os.scandir(date.path) as Pictures:
+                                    for picture in Pictures:
+                                        if picture.name != ".DS_Store":
+                                            if firstPicture:
+                                                os.rename(picture.path +"/1-1.dcm", picture.path +"/"+ patient.name + ".dcm")
+                                                shutil.copy(picture.path +"/"+ patient.name + ".dcm", "/Users/amelianelson/Desktop/UsefullImages")
+                                                firstDate = False
+                                                firstPicture = False
+                shutil.rmtree(patient.path)
+    
+    
 
 
 
-EntireCovidSet = "/Users/amelianelson/Desktop/Imaging/manifest-1628608914773/COVID-19-NY-SBU"
 
-with os.scandir(EntireCovidSet) as entries:
-    for entry in entries:
-        print(entry.name)
+
+        
