@@ -23,7 +23,7 @@ def preprocess_images(images):
     
 
 totalImageArray = []
-with os.scandir("/Users/amelianelson/Desktop/UsefulImages1") as Pictures:
+with os.scandir("/Users/amelianelson/Desktop/UsefulImages5") as Pictures:
   for picture in Pictures:
     if picture.name != '.DS_Store':
         print(picture.name)
@@ -35,6 +35,8 @@ del imageDS
 del ds
 del picture
 print('Completedfirst')
+
+np.save('/Users/amelianelson/Desktop/NumpyDataSets/Data5', totalDataArray)
 
 train_images = preprocess_images(totalDataArray)
 print('Completed!')
