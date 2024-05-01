@@ -8,17 +8,9 @@ import pydicom
 import numpy as np
 import tensorflow as tf
 import pickle
-import matplotlib.pyplot as plt
-import skimage
-from skimage import exposure
-import csv
-import pandas as pd
-
-data= pd.read_csv('/Users/amelianelson/Desktop/CovidClinical.csv')
-ages = data[["to_patient_id","last.status"]]
-
+                
 def preprocess_raw_res(image):
-  endImSize = 128
+  endImSize = 32
   if image.shape[0] < image.shape[1]:
     newIm = image[1:image.shape[0]:1,1:image.shape[0]:1]
   else:
@@ -26,34 +18,11 @@ def preprocess_raw_res(image):
   image = Image.fromarray(newIm)
   res_image = image.resize((endImSize, endImSize))
   finalIm = np.array(res_image)
-  #plt.imshow(finalIm)
-  l = finalIm.ravel();
-  contrast_img = exposure.equalize_hist(finalIm)
-  medianOfIm = np.median(contrast_img)
-  medianFilteredIm = np.where(contrast_img > medianOfIm, 1.0, 0.0).astype('float32')
-  #plt.imshow(medianFilteredIm)
-  return medianFilteredIm
-                
-#def preprocess_raw_res(image):
-#  endImSize = 128
-#  if image.shape[0] < image.shape[1]:
-#    newIm = image[1:image.shape[0]:1,1:image.shape[0]:1]
-#  else:
-#    newIm = image[1:image.shape[1]:1,1:image.shape[1]:1]
-#  image = Image.fromarray(newIm)
-#  res_image = image.resize((endImSize, endImSize))
-#  finalIm = np.array(res_image)
-#  l = finalIm.ravel();
-#  contrast_img = exposure.equalize_hist(finalIm)
-#  plt.imshow(contrast_img)
-#  TruefinalIm = np.array(contrast_img)
-#  plt.imshow(TruefinalIm)
-#  return TruefinalIm
+  return finalIm
 
 def preprocess_images(images):
-  #images.reshape((images.shape[0], 128, 128, 1))
-  #np.where(images > .5, 1.0, 0.0).astype('float32')
-  return images.reshape((images.shape[0], 128, 128, 1))
+  images = images.reshape((images.shape[0], 32, 32, 1)) / 255.
+  return np.where(images > .5, 1.0, 0.0).astype('float32')
     
 
 totalImageArray = []
@@ -140,8 +109,8 @@ test_size = test_images.shape[0]
 test_dataset = (tf.data.Dataset.from_tensor_slices(test_processed).shuffle(test_size).batch(32))
 
 
-tf.data.TFRecordDataset.save(train_dataset,'/Users/amelianelson/Desktop/NumpyDataSets/trainSet128')
-tf.data.TFRecordDataset.save(test_dataset,'/Users/amelianelson/Desktop/NumpyDataSets/testSet128')
+tf.data.TFRecordDataset.save(train_dataset,'/Users/amelianelson/Desktop/NumpyDataSets/trainSet32')
+tf.data.TFRecordDataset.save(test_dataset,'/Users/amelianelson/Desktop/NumpyDataSets/testSet32')
 
 
 print('Completed!')

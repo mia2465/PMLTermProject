@@ -34,21 +34,6 @@ def preprocess_raw_res(image):
   #plt.imshow(medianFilteredIm)
   return medianFilteredIm
                 
-#def preprocess_raw_res(image):
-#  endImSize = 128
-#  if image.shape[0] < image.shape[1]:
-#    newIm = image[1:image.shape[0]:1,1:image.shape[0]:1]
-#  else:
-#    newIm = image[1:image.shape[1]:1,1:image.shape[1]:1]
-#  image = Image.fromarray(newIm)
-#  res_image = image.resize((endImSize, endImSize))
-#  finalIm = np.array(res_image)
-#  l = finalIm.ravel();
-#  contrast_img = exposure.equalize_hist(finalIm)
-#  plt.imshow(contrast_img)
-#  TruefinalIm = np.array(contrast_img)
-#  plt.imshow(TruefinalIm)
-#  return TruefinalIm
 
 def preprocess_images(images):
   #images.reshape((images.shape[0], 128, 128, 1))
@@ -56,22 +41,29 @@ def preprocess_images(images):
   return images.reshape((images.shape[0], 128, 128, 1))
     
 
-totalImageArray = []
+trainingArray= []
+testingArray= []
 with os.scandir("/Users/amelianelson/Desktop/UsefulImages1") as Pictures:
   for picture in Pictures:
     if picture.name != '.DS_Store':
         print(picture.name)
         ds = pydicom.dcmread(picture.path)
         imageDS = ds.pixel_array
-        totalImageArray.append(preprocess_raw_res(imageDS))
-DataArray1 = np.array(totalImageArray)
+        patientStatus = data[data["to_patient_id"].str.contains(picture.name[:7])].iloc[0]["last.status"]
+        if patientStatus == 'discharged':
+           trainingArray.append(preprocess_raw_res(imageDS))
+        else:
+           testingArray.append(preprocess_raw_res(imageDS))
+TrainingDataArray1 = np.array(trainingArray)
+TestingDataArray1 = np.array(testingArray)
 del imageDS
 del ds
 del picture
-del totalImageArray
+del TrainingDataArray1
+del TestingDataArray1
+
 print('Data 1')
 
-totalImageArray = []
 with os.scandir("/Users/amelianelson/Desktop/UsefulImages2") as Pictures:
   for picture in Pictures:
     if picture.name != '.DS_Store':
