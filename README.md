@@ -10,9 +10,11 @@ The idea behind the project was to train the VAE to only construct those CT scan
 
 For this project the Stony Brook University COVID-19 provided by the Cancer Imaging Archive (citation below) was used.
 -To download this set the NBIA data retriever must be used 
--From here the DICOM files have to be processed into images using the python file PreProcessingFromNBIADataREtriever.py within the repository
--From here the images must be pre processed for each of the tests using the PreProcessingImagesForVAE128.py and PreProcessingImagesForVAE128HealthyVsNot.py 
-
+-DICOM files have to be processed into images using the python file PreProcessingFromNBIADataREtriever.py within the repository
+-The images must be pre processed for each of the tests using the PreProcessingImagesForVAE128.py and PreProcessingImagesForVAE128HealthyVsNot.py 
+-The variable optimization testing is then done on VAEFilerTesting.ipynb, VAELatentSpaceTEsting.ipynb
+-The testing for differentiating between patient outcomes is done in DischargedVsDeceasedTesting.ipynb
+-Final analysis is done in the MATLAB file AnalysisMATLABFile
 
 	
 CITATION FOR DATA SET
