@@ -2,6 +2,9 @@
 import os.path
 import shutil
 
+#This file goes through a directory created by NBIA data retriever and renames all DICOM first by patient name
+#then sequentially and puts the DICOM files into seperate folder.
+
 
 EntireCovidSet = "/Users/amelianelson/Desktop/Imaging/manifest-1711845412213/COVID-19-NY-SBU"
 

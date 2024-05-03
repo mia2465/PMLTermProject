@@ -14,33 +14,40 @@ from skimage import exposure
 import csv
 import pandas as pd
 
+#This file takes in the DICOM images created in the PreProcessingFromNBIADataRetriver.py and creates
+#testing and training sets. For the experiment the data set was split into four parts for handling. This
+#file creates a batch for training that is completely made up of discharged patients and two testing batches,
+#one of discharged patients and the other if deceased patients.
+
+# Reading in the Covid Clinical CSV file that is associated with the COVID-19-NY-SBU describing patinet status.
 data= pd.read_csv('/Users/amelianelson/Desktop/CovidClinical.csv')
 ages = data[["to_patient_id","last.status"]]
 
 def preprocess_raw_res(image):
   endImSize = 128
+  #Making image into a square of smallest side (top or right side)
   if image.shape[0] < image.shape[1]:
     newIm = image[1:image.shape[0]:1,1:image.shape[0]:1]
   else:
     newIm = image[1:image.shape[1]:1,1:image.shape[1]:1]
   image = Image.fromarray(newIm)
+  #Resizing image to be 128 by 128
   res_image = image.resize((endImSize, endImSize))
   finalIm = np.array(res_image)
-  #plt.imshow(finalIm)
+  #Creating contrast within image
   l = finalIm.ravel();
   contrast_img = exposure.equalize_hist(finalIm)
   medianOfIm = np.median(contrast_img)
+  #Binarizing image by making those above median pixel value 1 and the rest 0
   medianFilteredIm = np.where(contrast_img > medianOfIm, 1.0, 0.0).astype('float32')
-  #plt.imshow(medianFilteredIm)
   return medianFilteredIm
                 
 
+#Reshaping data set to meet shape requirements for running VAE  
 def preprocess_images(images):
-  #images.reshape((images.shape[0], 128, 128, 1))
-  #np.where(images > .5, 1.0, 0.0).astype('float32')
   return images.reshape((images.shape[0], 128, 128, 1))
     
-
+#Preprocessing first fourth of data from DICOM to numpy image array
 trainingArray= []
 testingArray= []
 with os.scandir("/Users/amelianelson/Desktop/UsefulImages1") as Pictures:
@@ -49,6 +56,7 @@ with os.scandir("/Users/amelianelson/Desktop/UsefulImages1") as Pictures:
         print(picture.name)
         ds = pydicom.dcmread(picture.path)
         imageDS = ds.pixel_array
+        #Finds patients outcome in order to discern whether part of training or testing set
         patientStatus = data[data["to_patient_id"].str.contains(picture.name[:7])].iloc[0]["last.status"]
         if patientStatus == 'discharged':
            trainingArray.append(preprocess_raw_res(imageDS))
@@ -59,81 +67,105 @@ TestingDataArray1 = np.array(testingArray)
 del imageDS
 del ds
 del picture
-del TrainingDataArray1
-del TestingDataArray1
+del trainingArray
+del testingArray
 
-print('Data 1')
-
+#Preprocessing second fourth of data from DICOM to numpy image array
+trainingArray= []
+testingArray= []
 with os.scandir("/Users/amelianelson/Desktop/UsefulImages2") as Pictures:
   for picture in Pictures:
     if picture.name != '.DS_Store':
         print(picture.name)
         ds = pydicom.dcmread(picture.path)
         imageDS = ds.pixel_array
-        totalImageArray.append(preprocess_raw_res(imageDS))
-DataArray2 = np.array(totalImageArray)
+        #Finds patients outcome in order to discern whether part of training or testing set
+        patientStatus = data[data["to_patient_id"].str.contains(picture.name[:7])].iloc[0]["last.status"]
+        if patientStatus == 'discharged':
+           trainingArray.append(preprocess_raw_res(imageDS))
+        else:
+           testingArray.append(preprocess_raw_res(imageDS))
+TrainingDataArray2 = np.array(trainingArray)
+TestingDataArray2 = np.array(testingArray)
 del imageDS
 del ds
 del picture
-del totalImageArray
-print('Data 2')
+del trainingArray
+del testingArray
 
-totalImageArray = []
+#Preprocessing third fourth of data from DICOM to numpy image array
+trainingArray= []
+testingArray= []
 with os.scandir("/Users/amelianelson/Desktop/UsefulImages3") as Pictures:
   for picture in Pictures:
     if picture.name != '.DS_Store':
         print(picture.name)
         ds = pydicom.dcmread(picture.path)
         imageDS = ds.pixel_array
-        totalImageArray.append(preprocess_raw_res(imageDS))
-DataArray3 = np.array(totalImageArray)
+        #Finds patients outcome in order to discern whether part of training or testing set
+        patientStatus = data[data["to_patient_id"].str.contains(picture.name[:7])].iloc[0]["last.status"]
+        if patientStatus == 'discharged':
+           trainingArray.append(preprocess_raw_res(imageDS))
+        else:
+           testingArray.append(preprocess_raw_res(imageDS))
+TrainingDataArray3 = np.array(trainingArray)
+TestingDataArray3 = np.array(testingArray)
 del imageDS
 del ds
 del picture
-del totalImageArray
-print('Data 3')
+del trainingArray
+del testingArray
 
-totalImageArray = []
+#Preprocessing fourth fourth of data from DICOM to numpy image array
+trainingArray= []
+testingArray= []
 with os.scandir("/Users/amelianelson/Desktop/UsefulImages4") as Pictures:
   for picture in Pictures:
     if picture.name != '.DS_Store':
         print(picture.name)
         ds = pydicom.dcmread(picture.path)
         imageDS = ds.pixel_array
-        totalImageArray.append(preprocess_raw_res(imageDS))
-DataArray4 = np.array(totalImageArray)
+        #Finds patients outcome in order to discern whether part of training or testing set
+        patientStatus = data[data["to_patient_id"].str.contains(picture.name[:7])].iloc[0]["last.status"]
+        if patientStatus == 'discharged':
+           trainingArray.append(preprocess_raw_res(imageDS))
+        else:
+           testingArray.append(preprocess_raw_res(imageDS))
+TrainingDataArray4 = np.array(trainingArray)
+TestingDataArray4 = np.array(testingArray)
 del imageDS
 del ds
 del picture
-del totalImageArray
-print('Data 4')
+del trainingArray
+del testingArray
 
-totalDataSet = np.concatenate((DataArray1, DataArray2, DataArray3, DataArray4), axis=0)
-#processedSet = preprocess_images(totalDataSet)
+#Combining Entire data sets by patient outcome
+train_images = np.concatenate((TrainingDataArray1,TrainingDataArray2, TrainingDataArray3, TrainingDataArray4), axis=0)
+test_images = np.concatenate((TestingDataArray1,TestingDataArray2, TestingDataArray3, TestingDataArray4), axis=0)
 
-trainPercentage = .98
-numTrainImages = int(totalDataSet.shape[0] * trainPercentage)
-train_images = totalDataSet[1:numTrainImages:1]
-test_images = totalDataSet[numTrainImages:totalDataSet.shape[0]:1]
-train_processed = preprocess_images(train_images)
-test_processed = preprocess_images(test_images)
+#seperating out training and testing numpy arrays
+train_processed = preprocess_images(train_images[1:int(train_images.shape[0]*.90):1])
+test_deseased_processed = preprocess_images(test_images)
+test_discharged_processed = preprocess_images(train_images[int(train_images.shape[0]*.90):train_images.shape[0]:1])
 
-
-
-#np.save('/Users/amelianelson/Desktop/NumpyDataSets/Data4', totalDataArray)
-#np.save('/Users/amelianelson/Desktop/NumpyDataSets/Processed4', finished_images)
-#tf.data.TFRecordDataset.save(train_dataset,'/Users/amelianelson/Desktop/NumpyDataSets/trainSet')
-#tf.data.TFRecordDataset.save(train_dataset,'/Users/amelianelson/Desktop/NumpyDataSets/testSet')
-
-
-train_size = train_images.shape[0]
+#Creaing training and testing data sets
+train_size = train_processed.shape[0]
 train_dataset = (tf.data.Dataset.from_tensor_slices(train_processed).shuffle(train_size).batch(32))
-test_size = test_images.shape[0]
-test_dataset = (tf.data.Dataset.from_tensor_slices(test_processed).shuffle(test_size).batch(32))
+test_deseased_size = test_deseased_processed.shape[0]
+test_deseased_dataset = (tf.data.Dataset.from_tensor_slices(test_deseased_processed).shuffle(test_deseased_size).batch(32))
+test_discharged_size = test_discharged_processed.shape[0]
+test_discharged_dataset = (tf.data.Dataset.from_tensor_slices(test_discharged_processed).shuffle(test_discharged_size).batch(32))
 
 
-tf.data.TFRecordDataset.save(train_dataset,'/Users/amelianelson/Desktop/NumpyDataSets/trainSet128')
-tf.data.TFRecordDataset.save(test_dataset,'/Users/amelianelson/Desktop/NumpyDataSets/testSet128')
+#Saving Data sets
+tf.data.TFRecordDataset.save(train_dataset,'/Users/amelianelson/Desktop/NumpyDataSets/trainSet128Healthy')
+tf.data.TFRecordDataset.save(test_deseased_dataset,'/Users/amelianelson/Desktop/NumpyDataSets/testSetDeceased128')
+tf.data.TFRecordDataset.save(test_discharged_dataset,'/Users/amelianelson/Desktop/NumpyDataSets/testSetDischarged128')
+
+#Reporting size of data sets
+print(str(train_size))
+print(str(test_deseased_size))
+print(str(test_discharged_size))
 
 
 print('Completed!')
