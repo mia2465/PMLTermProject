@@ -9,11 +9,18 @@ The main structure of the VAE comes from the main TensorFlow example of a VAE "h
 The idea behind the project was to train the VAE to only construct those CT scans of those with an optimal outcome ('discharged') and hence would be less likely to accurately recreate CT scans of those with non-optimal outcomes ('decesead'). This would in turn allow someone to find those with harmful indicators found by the VAE within a persons CT scan by finding a larger amount of discrepencies between the origional of an image and one that has been reconstructed by the VAE.
 
 For this project the Stony Brook University COVID-19 provided by the Cancer Imaging Archive (citation below) was used.
+
 -To download this set the NBIA data retriever must be used 
--DICOM files have to be processed into images using the python file PreProcessingFromNBIADataREtriever.py within the repository
+
+-DICOM files have to be processed into images using the python file 
+PreProcessingFromNBIADataREtriever.py within the repository
+
 -The images must be pre processed for each of the tests using the PreProcessingImagesForVAE128.py and PreProcessingImagesForVAE128HealthyVsNot.py 
+
 -The variable optimization testing is then done on VAEFilerTesting.ipynb, VAELatentSpaceTEsting.ipynb
+
 -The testing for differentiating between patient outcomes is done in DischargedVsDeceasedTesting.ipynb
+
 -Final analysis is done in the MATLAB file AnalysisMATLABFile
 
 	
